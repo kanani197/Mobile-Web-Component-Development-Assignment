@@ -1,0 +1,285 @@
+"""
+DKN System Quick Start Guide
+============================
+
+This file contains quick commands and tips for working with the DKN System.
+"""
+
+# ==============================================================================
+# QUICK START COMMANDS
+# ==============================================================================
+
+# Windows
+run.bat                          # Run the application with full setup
+
+# Mac/Linux
+bash run.sh                      # Run the application with full setup
+
+# Manual steps
+python -m venv venv              # Create virtual environment
+venv\Scripts\activate            # Activate (Windows)
+source venv/bin/activate         # Activate (Mac/Linux)
+pip install -r requirements.txt  # Install dependencies
+python init_db.py                # Initialize database
+python seed_data.py              # Create sample data
+python app.py                    # Run application
+
+# ==============================================================================
+# TESTING
+# ==============================================================================
+
+pytest                           # Run all tests
+pytest tests/test_auth.py        # Run specific test file
+pytest --cov                     # Run with coverage report
+pytest -v                        # Verbose output
+
+# ==============================================================================
+# DATABASE
+# ==============================================================================
+
+# Reset database (deletes all data)
+rm instance/dkn_system.db        # Delete database file (Mac/Linux)
+del instance\dkn_system.db       # Delete database file (Windows)
+python init_db.py                # Recreate database
+
+# Create migrations (when models change)
+flask db init                    # First time only
+flask db migrate -m "description"
+flask db upgrade
+
+# ==============================================================================
+# DEFAULT TEST USERS
+# ==============================================================================
+
+Username         | Password      | Role
+----------------+---------------+------------
+consultant       | password123   | Consultant
+champion         | password123   | Champion
+governance       | password123   | Governance
+admin            | password123   | Admin
+
+# ==============================================================================
+# USEFUL ROUTES
+# ==============================================================================
+
+Landing page              / or /auth/login
+Consultant upload         /consultant/upload
+Consultant dashboard      /consultant/dashboard
+Champion validation       /champion/dashboard
+Governance review         /governance/dashboard
+Admin panel               /admin/dashboard
+Search assets             /search/
+Admin users               /admin/users
+Audit logs                /governance/audit-logs
+
+# ==============================================================================
+# PROJECT STRUCTURE REFERENCE
+# ==============================================================================
+
+dkn_system/
+├── app.py                    # Main Flask app factory
+├── config.py                 # Configuration settings
+├── extensions.py             # Flask extensions
+├── models/
+│   ├── user.py              # User model with roles
+│   ├── knowledge_asset.py    # Asset model with status
+│   ├── metadata.py           # Tags model
+│   ├── workspace.py          # Collaboration spaces
+│   ├── audit.py              # Audit logging
+│   └── expertise.py          # Skill areas
+├── services/
+│   ├── recommendation_engine.py   # AI suggestions
+│   ├── upload_service.py          # File handling
+│   ├── validation_service.py      # Approval workflow
+│   ├── search_service.py          # Search & discovery
+│   ├── audit_service.py           # Activity logging
+│   └── notification_service.py    # Alerts
+├── routes/
+│   ├── auth.py               # Login/register
+│   ├── main.py               # Home/dashboard
+│   ├── consultant.py         # Upload management
+│   ├── champion.py           # Validation
+│   ├── governance.py         # Compliance review
+│   ├── admin.py              # User management
+│   └── search.py             # Asset discovery
+├── templates/                # HTML templates
+├── static/
+│   ├── css/style.css         # Styling
+│   └── js/main.js            # JavaScript
+├── utils/
+│   ├── decorators.py         # Role decorators
+│   └── file_handler.py       # File utilities
+├── tests/                    # Unit tests
+└── uploads/                  # User uploaded files
+
+# ==============================================================================
+# CONFIGURATION CHANGES
+# ==============================================================================
+
+To modify configuration, edit config.py:
+
+    SECRET_KEY                  # Change for production
+    SQLALCHEMY_DATABASE_URI     # Switch database
+    UPLOAD_FOLDER              # Change upload location
+    MAX_CONTENT_LENGTH         # Change max file size
+    ALLOWED_EXTENSIONS         # Supported file types
+    MAX_TAGS_PER_ASSET         # Tag suggestion limit
+
+# ==============================================================================
+# COMMON DEVELOPMENT TASKS
+# ==============================================================================
+
+Adding a new model:
+1. Create class in models/
+2. Import in models/__init__.py
+3. Update database: python init_db.py
+
+Adding a new route:
+1. Create blueprint in routes/
+2. Register in app.py: app.register_blueprint(bp)
+3. Create templates in templates/
+
+Creating a new service:
+1. Create file in services/
+2. Import in services/__init__.py
+3. Use in routes as needed
+
+# ==============================================================================
+# TROUBLESHOOTING
+# ==============================================================================
+
+Can't import models:
+    → Make sure you're in the right directory
+    → Check that venv is activated
+    → Run: pip install -r requirements.txt
+
+Database locked error:
+    → Close other instances
+    → Delete .db file and reinitialize
+    → Use different database in config.py
+
+Port 5000 already in use:
+    → Edit app.py, change: app.run(port=5001)
+    → Or: netstat -ano | findstr :5000  (Windows)
+
+File upload not working:
+    → Check uploads/ folder exists
+    → Verify file size < 50MB
+    → Check file type in allowed list
+    → Review browser console for errors
+
+Tests failing:
+    → Delete database: rm instance/dkn_system.db
+    → Reinstall dependencies: pip install -r requirements.txt
+    → Run: pytest -v for more info
+
+# ==============================================================================
+# USEFUL LINKS
+# ==============================================================================
+
+Flask Documentation:
+    https://flask.palletsprojects.com/
+
+SQLAlchemy ORM:
+    https://docs.sqlalchemy.org/
+
+Flask-Login:
+    https://flask-login.readthedocs.io/
+
+Bootstrap 5:
+    https://getbootstrap.com/docs/5.0/
+
+pytest:
+    https://docs.pytest.org/
+
+# ==============================================================================
+# PRODUCTION DEPLOYMENT CHECKLIST
+# ==============================================================================
+
+[ ] Change SECRET_KEY in config.py
+[ ] Update DATABASE_URI to PostgreSQL
+[ ] Set FLASK_ENV=production
+[ ] Disable debug mode
+[ ] Set up SSL/HTTPS
+[ ] Configure email notifications
+[ ] Set up automated backups
+[ ] Create admin user
+[ ] Test file uploads
+[ ] Review security settings
+[ ] Set up rate limiting
+[ ] Configure logging
+[ ] Test all workflows
+[ ] Document deployment process
+
+# ==============================================================================
+# API ENDPOINT SUMMARY
+# ==============================================================================
+
+Authentication:
+    POST    /auth/register              Register new user
+    POST    /auth/login                 Login user
+    GET     /auth/logout                Logout user
+
+Consultant Routes:
+    GET     /consultant/dashboard       View dashboard
+    GET     /consultant/upload          Upload form
+    POST    /consultant/upload          Process upload
+    GET     /consultant/asset/<id>      View asset
+    POST    /consultant/asset/<id>/delete  Delete asset
+    GET     /consultant/asset/<id>/download  Download
+
+Champion Routes:
+    GET     /champion/dashboard         View pending
+    GET     /champion/validate/<id>     Validate form
+    POST    /champion/validate/<id>     Process validation
+
+Governance Routes:
+    GET     /governance/dashboard       View pending
+    GET     /governance/review/<id>     Review form
+    POST    /governance/review/<id>     Process review
+    GET     /governance/audit-logs      View audit logs
+
+Admin Routes:
+    GET     /admin/dashboard            Admin dashboard
+    GET     /admin/users                User management
+    POST    /admin/user/<id>/edit       Edit user
+    GET     /admin/reports              System reports
+
+Search Routes:
+    GET     /search/                    Search assets
+    GET     /search/advanced            Advanced search
+    GET     /search/asset/<id>          View asset
+
+# ==============================================================================
+# DEBUG MODE
+# ==============================================================================
+
+To enable debug logging, modify app.py:
+
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+    logger = logging.getLogger(__name__)
+
+Then use in your code:
+    
+    logger.debug("Debug message")
+    logger.info("Info message")
+    logger.warning("Warning message")
+    logger.error("Error message")
+
+# ==============================================================================
+# ENVIRONMENT VARIABLES
+# ==============================================================================
+
+You can set environment variables for configuration:
+
+export FLASK_ENV=development        # (Mac/Linux)
+set FLASK_ENV=development           # (Windows)
+
+export DATABASE_URL=postgresql://...
+export SECRET_KEY=your-secret-key
+
+# ==============================================================================
+
+For more help, see README.md or contact the development team.
+"""
